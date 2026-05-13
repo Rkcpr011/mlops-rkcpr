@@ -2,8 +2,9 @@ import streamlit as st
 import pandas as pd
 import os
 import glob
-from evidently.report import Report
-from evidently.metric_preset import DataDriftPreset, DataQualityPreset
+# ✅ YE LAGAO
+from evidently import Report
+from evidently.presets import DataDriftPreset, DataQualityPreset
 from datetime import datetime, timedelta
 
 # Local paths
