@@ -2,9 +2,9 @@ import streamlit as st
 import pandas as pd
 import os
 import glob
-# ✅ YE LAGAO
-from evidently import Report
-from evidently.presets import DataDriftPreset, DataQualityPreset
+# ✅ REPLACE WITH (0.6.7 imports)
+from evidently.report import Report
+from evidently.metric_preset import DataDriftPreset, DataQualityPreset
 from datetime import datetime, timedelta
 
 # Local paths
@@ -85,7 +85,10 @@ def main():
                 safe_filename = os.path.basename(selected_file)\
                                 .replace(":", "_")
                 report_filename = f'drift_report_{safe_filename}.html'
-                drift_report.save_html(report_filename)
+                # drift_report.save_html(report_filename)
+                # ✅ AFTER (replace both occurrences)
+                with open(report_filename, 'w', encoding='utf-8') as f:
+                    f.write(drift_report.get_html())
 
                 with open(report_filename, 'r', encoding='utf-8') as f:
                     html_content = f.read()
@@ -121,7 +124,11 @@ def main():
                 safe_filename = os.path.basename(selected_file)\
                                 .replace(":", "_")
                 report_filename = f'drift_report_{safe_filename}.html'
-                drift_report.save_html(report_filename)
+
+                # drift_report.save_html(report_filename)
+                # ✅ AFTER (replace both occurrences)
+                with open(report_filename, 'w', encoding='utf-8') as f:
+                    f.write(drift_report.get_html())
 
                 with open(report_filename, 'r', encoding='utf-8') as f:
                     html_content = f.read()
