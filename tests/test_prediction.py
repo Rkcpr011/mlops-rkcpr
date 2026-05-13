@@ -27,3 +27,11 @@ def test_single_pred_validate(single_prediction): # check the output is Y
     assert single_prediction.get('prediction')[0] == 'Y'
 
 
+# pytest command run karo
+#         ↓
+# fixture function pehle chalta hai — data prepare karta hai
+#         ↓
+# har test function fixture ka output use karta hai
+#         ↓
+# assert pass → ✅ green
+# assert fail → ❌ red + error
