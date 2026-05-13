@@ -12,11 +12,12 @@ import prediction_model.processing.preprocessing as pp
 import prediction_model.pipeline as pipe
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
-
-
+import dagshub
+import mlflow
 #mlflow.set_tracking_uri("http://127.0.0.1:5000")
-
 mlflow.set_tracking_uri(config.TRACKING_URI)
+dagshub.init(repo_owner='rakeshcpr011', repo_name='MLOps-E2E-POC-i-mubahsir-hasan', mlflow=True)
+
 
 def get_data(input):
     data=load_dataset(input)
@@ -77,6 +78,7 @@ def objective(params):
     # Fit the pipeline
     mlflow.xgboost.autolog()
     mlflow.set_experiment("loan_prediction_model")
+
     with mlflow.start_run(nested=True):
         # Fit the pipeline
         classification_pipeline.fit(X_train, y_train)
@@ -109,6 +111,22 @@ best_params = fmin(fn=objective, space=search_space, algo=tpe.suggest, max_evals
 
 print("Best hyperparameters:", best_params)
 
+
+#=================
+# fmin() → 5 baar objective() call karta hai
+#               ↓
+#          Har trial mein:
+#          naya XGBoost → Pipeline → fit → f1 calculate
+#               ↓
+#          MLflow mein log: params + metrics + model
+#               ↓
+#          loss = 1-f1 → hyperopt ko do
+#               ↓
+#          Hyperopt next better params choose karta hai
+#               ↓
+# 5 trials complete → best_params print
+#               ↓
+# predict.py → MLflow se best f1 wala model load
 
 
 

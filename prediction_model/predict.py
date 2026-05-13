@@ -42,3 +42,24 @@ def generate_predictions_batch(data_input):
 
 if __name__=='__main__':
     generate_predictions()
+
+
+# FastAPI se input aaya
+#         ↓
+# DataFrame banao
+#         ↓
+# MLflow mein experiment dhundo
+#         ↓
+# Saare runs fetch karo — f1 DESC sort
+#         ↓
+# Best run ka ID lo — iloc[0]
+#         ↓
+# Model URI banao — "runs:/ID/name"
+#         ↓
+# MLflow se poori pipeline load karo
+#         ↓
+# pipeline.predict(data)
+#         ↓
+# 1/0 → Y/N convert karo
+#         ↓
+# {"prediction": ["Y"]} return karo    

@@ -47,11 +47,13 @@ DROP_FEATURES = ['CoapplicantIncome']
 
 LOG_FEATURES = ['ApplicantIncome', 'LoanAmount'] # taking log of numerical columns
 
-S3_BUCKET = "loanprediction"
+# S3_BUCKET = "loanprediction"  #wiill not be used,instread local batch output variable will be used
 
-FOLDER="datadrift"
+LOCAL_BATCH_OUTPUT = "batch_outputs" 
 
-TRACKING_URI="http://ec2-3-17-191-241.us-east-2.compute.amazonaws.com:5000/"
+# FOLDER="datadrift"
+
+TRACKING_URI="https://dagshub.com/rakeshcpr011/MLOps-E2E-POC-i-mubahsir-hasan.mlflow"  #changed to localhost mlflow
 
 
 EXPERIMENT_NAME="loan_prediction_model"
