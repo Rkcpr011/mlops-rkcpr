@@ -14,6 +14,7 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
 import dagshub
 import mlflow
+import os
 #mlflow.set_tracking_uri("http://127.0.0.1:5000")
 mlflow.set_tracking_uri(config.TRACKING_URI)
 dagshub.init(repo_owner='rakeshcpr011', repo_name='MLOps-E2E-POC-i-mubahsir-hasan', mlflow=True)
@@ -76,7 +77,7 @@ def objective(params):
     
    
     # Fit the pipeline
-    mlflow.xgboost.autolog()
+    # mlflow.xgboost.autolog()
     mlflow.set_experiment("loan_prediction_model")
 
     with mlflow.start_run(nested=True):
@@ -100,7 +101,7 @@ def objective(params):
             'precision': precision
         })
 
-        mlflow.sklearn.log_model(classification_pipeline, "Loanprediction-model")
+        mlflow.sklearn.log_model(classification_pipeline,config.MODEL_NAME)
     return {'loss': 1-f1, 'status': STATUS_OK}
     
 
@@ -109,7 +110,50 @@ trials = Trials()
 
 best_params = fmin(fn=objective, space=search_space, algo=tpe.suggest, max_evals=5, trials=trials)
 
+
 print("Best hyperparameters:", best_params)
+
+# =================================
+# only for local caching of best model — predict.py mein bhi ye function banao:
+# ✅ YE ADD KARO — Best model locally save karo
+best_trial = min(trials.results, key=lambda x: x['loss'])
+print(f"Best F1: {1 - best_trial['loss']}")
+
+
+# Best params se final model banao aur save karo
+best_clf = xgb.XGBClassifier(
+    max_depth=int(best_params['max_depth']),
+    learning_rate=best_params['learning_rate'],
+    n_estimators=int(best_params['n_estimators']),
+    subsample=best_params['subsample'],
+    colsample_bytree=best_params['colsample_bytree'],
+    gamma=best_params['gamma'],
+    reg_alpha=best_params['reg_alpha'],
+    reg_lambda=best_params['reg_lambda'],
+    eval_metric='mlogloss'
+)
+
+final_pipeline = Pipeline([
+    ('DomainProcessing', pp.DomainProcessing(
+        variable_to_modify=config.FEATURE_TO_MODIFY,
+        variable_to_add=config.FEATURE_TO_ADD)),
+    ('MeanImputation', pp.MeanImputer(variables=config.NUM_FEATURES)),
+    ('ModeImputation', pp.ModeImputer(variables=config.CAT_FEATURES)),
+    ('DropFeatures', pp.DropColumns(variables_to_drop=config.DROP_FEATURES)),
+    ('LabelEncoder', pp.CustomLabelEncoder(variables=config.FEATURES_TO_ENCODE)),
+    ('LogTransform', pp.LogTransforms(variables=config.LOG_FEATURES)),
+    ('MinMaxScale', MinMaxScaler()),
+    ('XGBoostClassifier', best_clf)
+])
+
+final_pipeline.fit(X_train, y_train)
+
+# Local mein save karo
+import joblib
+os.makedirs(os.path.join(config.PACKAGE_ROOT, 'trained_models'), exist_ok=True)
+model_path = os.path.join(config.PACKAGE_ROOT, 'trained_models', 'cached_model.pkl')
+joblib.dump(final_pipeline, model_path)
+print(f"✅ Model saved locally at: {model_path}")
 
 
 #=================

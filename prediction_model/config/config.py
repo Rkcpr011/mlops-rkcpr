@@ -58,5 +58,5 @@ TRACKING_URI="https://dagshub.com/rakeshcpr011/MLOps-E2E-POC-i-mubahsir-hasan.ml
 
 EXPERIMENT_NAME="loan_prediction_model"
 
-MODEL_NAME="/Loanprediction-model"
+MODEL_NAME="Loanprediction-model"
 
